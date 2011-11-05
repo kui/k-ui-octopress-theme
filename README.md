@@ -1,1 +1,1 @@
-this is a minimum [Octopress](http://octopress.org/) theme just makes `rake generate` a success.
+[Octopress](http://octopress.org/) Theme for [k-ui.jp](http://k-ui.jp/)
