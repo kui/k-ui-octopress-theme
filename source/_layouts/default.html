@@ -1,0 +1,36 @@
+{% capture root_url %}{{ site.root | strip_slash }}{% endcapture %}
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <!-- include head -->
+    {% include head.html %}
+    <!-- /include -->
+  </head>
+  <body>
+    <div id="wrapper">
+
+      <header role="banner">
+	<!-- include header -->
+	{% include header.html %}
+	<!-- /include -->
+      </header>
+
+      <div id="content">
+	<!-- content -->
+	{{ content | expand_urls: root_url }}
+	<!-- /content -->
+      </div>
+
+      <footer role="contentinfo">
+	<!-- include footer -->
+	{% include footer.html %}
+	<!-- /include -->
+      </footer>
+      
+      <!-- include after_footer -->
+      {% include after_footer.html %}
+      <!-- /include -->
+
+    </div>
+  </body>
+</html>

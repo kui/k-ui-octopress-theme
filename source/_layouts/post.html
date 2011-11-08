@@ -1,0 +1,97 @@
+---
+layout: default
+---
+{% capture show_comments %}{% if site.disqus_short_name and page.comments != false and site.disqus_show_comment_count == true %}t{% endif %}{% endcapture %}
+{% if page.author %}
+  {% assign author = page.author %}
+{% else %}
+  {% assign author = site.author %}
+{% endif %}
+{% capture has_category %}{{ page.categories | category_links | size }}{% endcapture %}
+<article class="entry" role="article">
+
+  <header>
+    <h2 class="entry_title">{{ page.title }}</h2>
+
+    {% unless page.meta == false %}
+    <p class="meta">
+
+      {% if page.date %}
+      <time datetime="{{page.date}}" pubdate>{{page.date_formatted}}</time>
+      {% endif %}
+
+      {% if show_comments == 't' and page.date %}
+      |
+      {% endif %}
+
+      {% if show_comments == 't' %}
+      <a href="#disqus_thread">Comments</a>
+      {% endif %}
+
+    </p>
+    {% endunless %}
+
+  </header>
+
+  <div class="entry_content">{{ content }}</div>
+
+  <footer>
+    <p class="meta">
+
+      {% if page.author %}
+      <span class="author">
+	Posted by <span class="fn">{{ page.author }}</span>
+      </span>
+      {% endif %}
+
+      {% if has_date != '0' %}
+      <time datetime="{{page.date}}" pubdate>{{page.date_formatted}}</time>
+      {% endif %}
+
+      {% if category != '0' %}
+      <span class="categories">
+	{{ page.categories | category_links }}
+      </span>
+      {% endif %}
+
+    </p>
+
+    {% unless page.sharing == false %}
+    <div class="sharing">
+
+      {% if site.twitter_tweet_button %}
+      <a href="http://twitter.com/share"
+	 class="twitter-share-button"
+	 data-url="{{ site.url }}{{ page.url }}"
+	 data-via="{{ site.twitter_user }}"
+	 data-counturl="{{ site.url }}{{ page.url }}" >Tweet</a>
+      {% endif %}
+
+      {% if site.google_plus_one %}
+      <div class="g-plusone" data-size="{{ site.google_plus_one_size }}"></div>
+      {% endif %}
+
+      {% if site.facebook_like %}
+      <div class="fb-like"
+	   data-send="true"
+	   data-width="450"
+	   data-show-faces="false"></div>
+      {% endif %}
+    </div>
+    {% endunless %}
+
+    {% if site.disqus_short_name and page.comments == true %}
+    <section>
+      <h3>Comments</h3>
+      <div id="disqus_thread" aria-live="polite">
+	<noscript>
+	  Javascript を有効にしないとコメントを見ることができません。
+	  (<a href="http://disqus.com/?ref_noscript">Disqus</a>)
+	</noscript>
+      </div>
+    </section>
+    {% endif %}
+
+  </footer>
+  
+</div>
