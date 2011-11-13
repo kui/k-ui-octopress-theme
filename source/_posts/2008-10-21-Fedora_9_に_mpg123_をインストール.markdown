@@ -1,0 +1,38 @@
+---
+layout: post
+comment: true
+title: Fedora 9 に mpg123 をインストール
+---
+Fedora 9 に mpg123 入れるのに，
+
+{% codeblock lang:bash %}
+$ sudo yum install mpg123
+{% endcodeblock %}
+
+でいけると思ってた．．．結果は
+
+{% codeblock lang:bash %}
+Loaded plugins: refresh-packagekit
+Warning: No matches found for: mpg123
+No Matches found
+$ sudo yum search 123
+Loaded plugins: refresh-packagekit
+================================= Matched: 123 =================================
+flac123.i386 : Command-line program for playing FLAC audio files
+pastebin.noarch : A collaborative debugging tool
+vorbisgain.i386 : Adds tags to Ogg Vorbis files to adjust the volume
+{% endcodeblock %}
+
+どうやら yum には頼れないようです． ってか flac123 があって mpg123 が無いのって何なんだろう．．．納得いかない．
+
+ということで，<a href="http://rpm.pbone.net/index.php3/stat/4/idpl/8746924/com/mpg123-1.5.1-8.fc9.i386.rpm.html">RPM Search で見つけた mpg123 の RPM パッケージ</a>をインストールすることをする．mpg123 をインストールするに当たって，mpg123 が必要としているパッケージもインストールする．
+
+{% codeblock lang:bash %}
+$ sudo yum install arts portaudio
+$ sudo rpm -i 'ftp://ftp.pbone.net/mirror/atrpms.net/f9-i386/atrpms/stable/mpg123-1.5.1-8.fc9.i386.rpm'
+$ mpg123 'http://www.nullsleep.com/mp3/8bp077-01-nullsleep-her_lazer_light_eyes.mp3'
+{% endcodeblock %}
+
+<strong>．．．．鳴らない．．．？</strong>
+
+と思ったら音量が最小だったという罠．適切な音量を設定して再トライしたところ，問題なく動きました！ってか Gnome 使うと，ALSA から音量のコントロールできないのね．どうしたらいいんだろ．

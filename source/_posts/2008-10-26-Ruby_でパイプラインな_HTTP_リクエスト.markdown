@@ -1,0 +1,168 @@
+---
+layout: post
+comment: true
+title: Ruby でパイプラインな HTTP リクエスト
+---
+<a href="http://d.hatena.ne.jp/dayflower/20081024/1224830945">HTTP/1.1 の同時接続数について - daily dayflower</a> をみて「おお、こんな事出来たのか。pipelining すげぇ」と思い、Ruby でこれやるのにはどうしたらいいのか <a href="http://blog.livedoor.jp/dankogai/archives/50719947.html">404 Blog Not Found:HTTPサーバーのパイプライン対応</a> を参考に考えてみました。
+
+どうやら、Net::HTTP は、HTTP プロトコルのパイプライン処理をできるようになってないようす。その為、Net::HTTP の拡張が必要になりました。
+
+### メインコード
+<a href="http://blog.livedoor.jp/dankogai/archives/50719947.html">404 Blog Not Found:HTTPサーバーのパイプライン対応</a>　のパイプラインの例を ruby コード化するとこんな感じ。
+{% codeblock lang:ruby %}
+require "net/http"
+require "pipelinig_http.rb" # Net::HTTP の拡張
+
+def main
+
+  host = 'b.hatena.ne.jp'
+  paths = ['/','/hotentry', '/news', '/entrylist?sort=hot']
+
+  Net::HTTP.start(host) do |http|
+
+    # リクエストの送信
+    paths.each do |path|
+      req = Net::HTTP::Head.new(path)
+      r_print req
+      http.just_request(req)
+    end
+
+    # レスポンスの取得
+    while res = http.fetch_response
+      r_print res
+    end
+
+  end
+
+end
+
+# リクエストとレスポンスのヘッダを出力する
+def r_print(r)
+  puts "##### #{r.class.to_s} #####"
+    r.each{|k,v| puts "%15s: %s" % [k,v]}
+  puts ""
+end
+
+main if __FILE__ == $0
+{% endcodeblock %}
+上記のコードで、require されてる pipelining_http.rb は、今回のために用意したファイルで、次に示す内容になっています。
+
+### パイプライン処理のための Net::HTTP の拡張　pipelining_http.rb
+
+Net::HTTP#just_request, Net::HTTP#fetch_response は、次のように拡張される。実質、Net::HTTP#request を二つに分断した感じなってます。一応アップロードしておく。また今回の例では HEAD リクエストしかしていませんが、GETもPUTもできるはずです。（PUTは未確認）
+
+<a href="http://k-ui.jp/dl/pipelining_http-0.1.tar.gz">pipelining_http-0.1.tar.gz</a>
+
+{% codeblock lang:ruby %}
+class Net::HTTP
+
+  def just_request(req, body=nil)
+
+    @req_cue ||= []
+    @req_cue << req
+
+    unless started?
+      start {
+        req['connection'] ||= 'close'
+        return request(req, body, &block)
+      }
+    end
+    if proxy_user()
+      unless use_ssl?
+        req.proxy_basic_auth proxy_user(), proxy_pass()
+      end
+    end
+
+    req.set_body_internal body
+    begin_transport(req)
+
+    req.exec(@socket, @curr_http_version, edit_path(req.path))
+
+  end
+
+  def fetch_response
+
+    if @req_cue.nil? or @req_cue.empty?
+      end_transport(@last_request, @last_response)
+      return nil
+    end
+
+    @last_request = (req = @req_cue.shift)
+
+    begin
+      @last_response = (res = Net::HTTPResponse.read_new(@socket))
+    end while res.kind_of?(Net::HTTPContinue)
+
+    res.reading_body(@socket, req.response_body_permitted?) {
+      yield res if block_given?
+    }
+
+    res
+  end
+
+end
+{% endcodeblock %}
+
+個人的に、end_transport のあたりの処理が気に入りません。要改善。
+
+### 実行結果
+{% codeblock lang:bash %}
+##### Net::HTTP::Head #####
+         accept: */*
+
+##### Net::HTTP::Head #####
+         accept: */*
+
+##### Net::HTTP::Head #####
+         accept: */*
+
+##### Net::HTTP::Head #####
+         accept: */*
+
+##### Net::HTTPOK #####
+           vary: Accept-Encoding
+            via: 1.0 squid.hatena.ne.jp:3128 (squid/2.6.STABLE14)
+   content-type: text/html; charset=utf-8
+           date: Sat, 25 Oct 2008 20:01:48 GMT
+         server: Apache/2.2.3 (CentOS)
+     set-cookie: b=$1$edWQVbYY$4h0bIVtR7RvBTX3ifNcOF1; path=/; expires=Fri, 20-Oct-28 20:01:48 GMT; domain=.hatena.ne.jp
+ content-length: 63501
+            age: 588
+    x-framework: Hatena/2.1
+
+##### Net::HTTPOK #####
+           vary: Accept-Encoding
+            via: 1.0 squid.hatena.ne.jp:3128 (squid/2.6.STABLE14)
+   content-type: text/html; charset=utf-8
+           date: Sat, 25 Oct 2008 20:01:48 GMT
+         server: Apache/2.2.3 (CentOS)
+     set-cookie: b=$1$qYZ0MfS0$aCDFrIOKpp8HayJftFjt/1; path=/; expires=Fri, 20-Oct-28 20:01:48 GMT; domain=.hatena.ne.jp
+ content-length: 103301
+            age: 1163
+    x-framework: Hatena/2.1
+
+##### Net::HTTPOK #####
+           vary: Accept-Encoding
+            via: 1.0 squid.hatena.ne.jp:3128 (squid/2.6.STABLE14)
+   content-type: text/html; charset=utf-8
+           date: Sat, 25 Oct 2008 20:01:48 GMT
+         server: Apache/2.2.3 (CentOS)
+     set-cookie: b=$1$00vjav3o$InTi7h2XFjwllpcFJLnv60; path=/; expires=Fri, 20-Oct-28 20:01:48 GMT; domain=.hatena.ne.jp
+ content-length: 52390
+            age: 2259
+    x-framework: Hatena/2.1
+
+##### Net::HTTPOK #####
+           vary: Accept-Encoding
+            via: 1.0 squid.hatena.ne.jp:3128 (squid/2.6.STABLE14)
+   content-type: text/html; charset=utf-8
+           date: Sat, 25 Oct 2008 20:01:48 GMT
+         server: Apache/2.2.3 (CentOS)
+     set-cookie: b=$1$IZcB88yy$I2jjsa5SWRPLEBT4saLNI.; path=/; expires=Fri, 20-Oct-28 20:01:48 GMT; domain=.hatena.ne.jp
+ content-length: 103620
+            age: 2203
+    x-framework: Hatena/2.1
+
+{% endcodeblock %}
+
+以上でした。

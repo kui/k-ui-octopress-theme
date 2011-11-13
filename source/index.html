@@ -1,0 +1,30 @@
+---
+layout: page
+is_top: true
+---
+<div id="top">
+
+  <div id="recent_posts">
+    <h2>最近のブログ投稿</h2>
+
+    <ul>
+    {% for post in paginator.posts %}
+      <li>
+        <article>
+          <a rel="full-article" href="{{ post.url }}">{{ post.title }}</a>
+          （<time datetime="{{post.date}}" pubdate>{{post.date_formatted}}</time>）
+        </article>
+      </li>
+    {% endfor %}
+    </ul>
+
+    <p><a href="/blog/archives">&laquo; 過去の記事</a></p>
+
+  </div>
+
+
+  <!-- include asides.html -->
+  {% include asides.html %}
+  <!-- /include asides.html -->
+
+</div>

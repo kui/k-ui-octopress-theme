@@ -1,0 +1,25 @@
+{% comment %} -*- coding:utf-8 -*- {% endcomment %}
+
+{% assign tumblr_post_num = 5 %}
+{% if site.tumblr_post_num %}
+   {% assign tumblr_post_num = site.tumblr_post_num %}
+{% endif %}
+
+{% if site.tumblr_user %}
+<section>
+  <h2>
+    スクラップ帳
+    &mdash;
+    <a href="http://{{site.tumblr_user}}.tumblr.com">tumblr</a>
+  </h2>
+  <ul id="tumblr_posts">
+    <li class="loading">読込中 ...</li>
+  </ul>
+  <script src="http://daftbeats.tumblr.com/api/read/json?num={{tumblr_post_num}}"
+          type="text/javascript"></script>
+  <script src="/javascripts/tumblr.js" type="text/javascript"></script>
+  <script type="text/javascript">
+    $.domReady(function(){tumblrLoader("{{site.tumblr_user}}", "tumblr_posts");})
+  </script>
+</section>
+{% endif %}

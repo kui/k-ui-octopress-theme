@@ -1,0 +1,121 @@
+---
+layout: post
+comment: true
+title: Last.FM ラジオクライアント Ruby ライブラリ - lastfm12
+---
+そういえば、と思い出したので。
+
+「<a href="http://k-ui.jp/?p=43">last.fm のラジオ再生のための Ruby ライブラリを作ってみた</a>」で紹介したライブラリを大分昔に <a href="http://lastfm12.rubyforge.org/">RubyForge に登録していた</a> ので告知させて頂きます。登録そのものはもう２年前で、RubyGem リポジトリ環境も大分変わってますね。。。
+
+### インストール方法
+<pre>
+$ sudo gem install lastfm12
+</pre>
+
+### 使い方
+<a href="http://k-ui.jp/?p=43">以前の記事</a>とほとんど変わっていませんが、クラスメソッド `play_loop` というちょっと使いやすそうなメソッドを一つ追加しました。使い方はこんな感じ。
+{% codeblock lang:ruby %}
+#!ruby -Ku
+# -*- coding: utf-8 -*-
+#
+# クラスメソッド play_loop を使ったサンプル
+# ※ mpg123 が必要
+
+$KCODE = 'utf-8'
+
+# Last.FM アカウント情報
+user_name = "LastFMのアカウント名"
+password = "LastFMのパスワード"
+
+# ラジオ局の選択
+#station = ["artist", "abba"] # アーティスト ABBA に似たトラックを流すラジオ局
+#station = ["personal", "daftbeats"] # ユーザ daftbeats のパーソナルラジオ局
+station = ["tag", "house"] # タグ house の付いたトラックを流すラジオ局
+#station = ["group", "hoge"] # グループ hoge のトラックを流すラジオ局（よく分からない）
+#station = ["neighbours", "daftbeats"] # ユーザ daftbeats の近所？のユーザのラジオ局
+#station = ["recommended", "daftbeats"] # ユーザ daftbeats に対する推薦トラックを流すラジオ局
+
+require "rubygems"
+require "lastfm12"
+
+# conter 数のトラックを再生したら終了
+counter = 3
+
+LastFM12.play_loop("user_name" => user_name,
+                   "password" => password,
+                   "user_agent"=> "lastfm12_sample",
+                   "station" => station,
+                   "verbose"=> true # 冗長出力
+                   ) do |track|
+
+  if counter == 0 then
+    puts "exit loop"
+    break
+  end
+  counter -= 1
+
+  puts "-------------------------------------------"
+  puts "Artist: #{track.artist}"
+  puts "Title:  #{track.title}"
+  puts "Album:  #{track.album}"
+  puts "Length: #{track.length/1000}[sec]"
+  puts "ImgURL: #{track.image_url}"
+  `mpg123 -b 1024 #{track.location}`
+
+end
+{% endcodeblock %}
+
+注意して欲しいのはやはり前回と同じく `track.location`。`track.location`で与えられる URL は、一度アクセスしてたら二度とその URL は使えません。そのトラックとも一期一会なわけですね。
+
+使ってみると分かるんですが、今再生している曲は、残り時間幾つくらいか分からないのが困ります。そこで、データストリームを直接受け取るような使い方もできるようになりました。使い方はこんな感じ。
+{% codeblock lang:ruby %}
+#!ruby -Ku
+# -*- coding: utf-8 -*-
+#
+# LastFM12::Track#play を使ったサンプル
+# ※ mpg123 が必要
+
+$KCODE = 'utf-8'
+STDOUT.sync = true 
+
+# Last.FM アカウント情報
+user_name = "LastFMのアカウント名"
+password = "LastFMのパスワード"
+
+# ラジオ局の情報
+station = ["tag", "house"] # タグ house の付いたトラックを流すラジオ局
+
+require "rubygems"
+require "lastfm12"
+
+Signal.trap(:INT){puts "\n* exit";exit}
+puts "** Type C-c if you want to exit **"
+
+LastFM12.play_loop("user_name" => user_name,
+                   "password" => password,
+                   "user_agent"=> "lastfm12_sample",
+                   "station" => station,
+                   "verbose"=> true # 冗長出力
+                   ) do |track|
+
+  puts "-------------------------------------------"
+  puts "Artist: #{track.artist}"
+  puts "Title:  #{track.title}"
+  puts "Album:  #{track.album}"
+  puts "Length: #{track.length/1000}[sec]"
+
+  IO.popen("mpg123 -b 1024 -q -y -", "w") do |pipe|
+    start_time = Time.new
+    track.play do |s| # s は mp3 データ断片
+      pipe.write s
+      rest_time = (track.length/1000)-(Time.new-start_time)
+      print "#{rest_time.round.to_s.rjust(5)} sec\r" # 推定残り秒数の表示
+    end
+  end
+
+end
+{% endcodeblock %}
+
+`LastFM12::Track#location` と net/http を使えば同じことが出来ますがちょっとややこしいのでメソッド化してしまいました。ストリーミング再生に open-uri は不適なのがよくわかったんだぜ。。。
+
+mp3 データの保存とかもできちゃいますが、利用者の良心にお任せいたします。

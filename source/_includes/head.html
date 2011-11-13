@@ -23,6 +23,16 @@
       title="{{site.title}}"
       type="application/atom+xml">
 
+{% if page.is_top %}
+<style type="text/css">
+  header[role="banner"] hgroup h1 { font-size: 180% }
+</style>
+{% endif %}
+
+<script src="{{ root_url }}/javascripts/modernizr-2.0.js" type="text/javascript"></script>
+<script src="{{ root_url }}/javascripts/ender.js" type="text/javascript"></script>
+<script src="{{ root_url }}/javascripts/octopress.js" type="text/javascript"></script>
+
 {% if site.google_analytics_tracking_id %}
 <script type="text/javascript">
   var _gaq = _gaq || [];

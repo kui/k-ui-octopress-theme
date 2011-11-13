@@ -1,0 +1,37 @@
+---
+layout: page
+title: "過去の記事"
+footer: false
+---
+
+<h2>過去記事の一覧</h2>
+
+<div id="blog-archives">
+
+{% assign is_first = true %}
+{% for post in site.posts reverse %}
+
+  {% capture this_year %}{{ post.date | date: "%Y" }}{% endcapture %}
+
+  {% unless year == this_year %}
+    {% assign year = this_year %}
+    {% if is_first %}
+      {% assign is_first = false %}
+    {% else %}
+    </ul>
+    {% endif %}
+
+    <h3>{{ year }} 年</h3>
+    <ul>
+  {% endunless %}
+
+      <li>
+        <time datetime="{{ post.date | datetime | date_to_xmlschema }}" pubdate>
+          {{ post.date | date: "<span class='month'>%m月</span> <span class='day'>%d日</span>"}}
+        </time>
+        &mdash;
+        <a href="{{ post.url }}">{{ post.title }}</a>
+      </li>
+  
+{% endfor %}
+</div>

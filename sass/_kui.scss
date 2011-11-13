@@ -1,8 +1,80 @@
-/* @extend this to force long lines of continuous text to wrap */
-.force-wrap {
-  white-space: -moz-pre-wrap;
-  white-space: -pre-wrap;
-  white-space: -o-pre-wrap;
-  white-space: pre-wrap;
-  word-wrap: break-word;
+/* -*- mode:css coding:utf-8 -*- */
+
+#comments { display: none; }
+body{
+  font-family: Georgia, Times, "Times New Roman", serif;
+  font-size: 1.2em;
+  color: #333;
+  margin: 0px;
 }
+
+h1, h2, h3, h4, h5, h6{
+  font-family: "Hiragino Kaku Gothic Pro W3", "ヒラギノ角ゴ Pro W3", Meiryo, "メイリオ", "MS P Gothic", "ＭＳ Ｐゴシック", sans-serif;
+}
+
+.site_metas {
+    background-color:#333; color:#fff;
+    a{ color: #fff; }
+}
+
+header[role="banner"]{
+    @extend .site_metas;
+    hgroup{
+        h1 {
+            font-size: 100%;
+            margin: 0px;
+            padding: 0px;
+            font-weight: 100;
+            a{
+                text-decoration: none;
+                display: block;
+                padding: .3em 1em;
+            }
+            a:hover{
+                text-decoration: underline;
+                background-color:#000;
+            }
+        }
+        h2{ display: none; }
+    }
+}
+
+#content{
+    margin: 8px;
+    a{
+        color: #33c;
+    }
+    a:visited{
+        color: #939;
+    }
+    a:hover{
+        background-color: yellow;
+    }
+    dl{
+        margin: 1em; 
+    }
+    dt{
+        margin-top: .6em;
+        font-style: italic;
+    }
+}
+
+p.meta{
+    text-align: right;
+}
+
+footer[role="contentinfo"]{
+    @extend .site_metas;
+    text-align: center;
+    margin: 0px;
+    padding: 8px;
+    font-size: 80%;
+    p {
+        margin: 0px;
+    }
+}
+
+/* disqus */
+#dsq-reply > h3, #dsq-account-dropdown, #dsq-subscribe { display: none; }
+#disqus_thread #dsq-content #dsq-global-toolbar { margin: 0.3em 0px; }
+#dsq-reply{ margin: 0.3em}

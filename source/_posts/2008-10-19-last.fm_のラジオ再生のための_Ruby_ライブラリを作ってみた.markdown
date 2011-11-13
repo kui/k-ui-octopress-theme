@@ -1,0 +1,90 @@
+---
+layout: post
+comment: true
+title: last.fm のラジオ再生のための Ruby ライブラリを作ってみた
+---
+<a href="http://d.hatena.ne.jp/daftbeats/20080505/1209975577">以前のブログの記事</a>で、<a href="http://code.google.com/p/thelastripper/">Google Code 上の thelastripper</a> にて公開されている<a href="http://code.google.com/p/thelastripper/wiki/LastFM12UnofficialDocumentation">ドキュメント (LastFM12UnofficialDocumentation)</a> の簡単な説明と、スクリプトを公開しました。
+
+Linux を NAS 兼メディアセンターとして使っているので、Linux で X 立ち上げずに last.fm ラジオの再生できたらなぁと思ってたりしてました。
+
+ということで、<a href="http://code.google.com/p/thelastripper/wiki/LastFM12UnofficialDocumentation">LastFM12UnofficialDocumentation</a>を元に、last.fm ラジオの再生の助けになるライブラリを作ってみました。
+
+<strong><a href="http://k-ui.jp/dl/lastfmradio-0.1.tar.gz"><em>lastfmradio-0.1.tar.gz</em> のダウンロード</a></strong>
+
+本当は、RubyForge なり GitHub になり置いた方が良いかもしれないんですが、どっちがいいんですかねぇ。
+
+同梱されているドキュメント。。英語ですがかなり怪しいですね。
+### 使い方
+メソッドごとに説明をするよりも、サンプルコードの方がどんな感じかわかりやすいと思うので、コードで二つほど例示します。
+基本的に、ハンドシェイク → ラジオ局の選択 → トラックの取得 → 処理 の流れは変わりません。省かれているように見える場合は、内部で処理をしています。
+<h4>一番基本的な例</h4>
+mpg123 を使ってラジオ再生する
+{% codeblock lang:ruby %}#! ruby -Ku
+
+# last.fm 上でのアカウント名とパスワード
+user_name = 'USER_NAME'
+password = 'PASSWORD'
+
+# 内部ではハンドシェイクをしている
+lastfm = LastfmRadio.new(user_name, password)
+
+# electoronic タグラジオに合わせる
+lastfm.adjust_station('tag', 'electoronic')
+
+loop do
+
+  # トラック情報の取得
+  # クラス Track のインスタンスの Array を返す
+  tracks = lastfm.get_tracks
+
+  tracks.each do |track|
+
+    # トラック情報の表示
+    puts "-"*75
+    puts "artist: #{track.artist}"
+    puts "title:  #{track.title}"
+    puts "album:  #{track.album}"
+    puts "length: #{track.length/1000}[sec]" 
+
+    # mpg123 を使って現在のトラック再生
+    `mpg123 -q #{track.location}`
+  end
+
+end{% endcodeblock %}
+`LastfmRadio#get_tracks` メソッドは要注意。返してくれるトラックの数はまちまちです。ラジオ局によっては、 1 つも取得できない時があります。これは、引数に整数を与えることで解決ができます。たとえば引数に 2 をあたえると、2 個以上のトラックを取得するまでリターンしなくなります。
+
+`LastfmRadio#adjust_station` メソッドは、第一引数に以下のようなシンボル or 文字列をとります。
+
+<dl> <dt>tag または globaltags</dt> <dd>第二引数で指定されるタグラジオを選択</dd> <dt>artist</dt> <dd>第二引数で指定されるアーティストに似たラジオを選択</dd> <dt>personal</dt> <dd>第二引数で指定されるアカウントのパーソナルラジオを選択</dd> <dt>recommended</dt> <dd>第二引数で指定されるアカウントのおすすめラジオを選択</dd> <dt>neighbours</dt> <dd>第二引数で指定されるアカウントのお隣さんのラジオを選択（日本語。。。）</dd> <dt>group</dt> <dd>第二引数で指定されるグループのラジオを選択</dd> </dl>
+<h4>一番簡単な例</h4>
+wget を使ってラジオから流れてくる曲をダウンロード
+{% codeblock lang:ruby %}require "lastfmradio"
+
+hash = {
+  :user_name => "SOME_USER",
+  :password => "PASSWORD",
+  :station => ["tag","electoro"], # adjust_station の引数と同じ
+  :min_num_tracks => 2,  # 2 個以上のトラックを必ず取得(optional)
+  #:debug => true # デバグモード(optional)
+}
+
+loop do
+
+  # ハンドシェイク、局の選択、トラックの取得をする
+  # 二回め以降は、同じユーザ名・局の場合は、ハンドシェイク、局の選択はしない。
+  tracks = LastfmRadio.get_tracks(hash)
+
+  tracks.each do |track|
+
+    puts "-"*25 + " " + Time.now.to_s + " " + "-"*25
+    puts "artist: #{track.artist}"
+    puts "title:  #{track.title}"
+    puts "album:  #{track.album}"
+    puts "length: #{track.length/1000}[sec]"
+
+    `mpg123 -q #{track.location}`
+  end
+end{% endcodeblock %}
+こんな感じで使えます。
+
+しかしここまで書いたら、アプリケーションとして公開した方がよかったかな。。。気にしない。。。。ruby ライブラリを公開したの初めてですが、インストーラーとかみんなどうしてるんでしょうかね。

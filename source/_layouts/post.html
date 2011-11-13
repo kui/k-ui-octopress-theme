@@ -28,6 +28,12 @@ layout: default
       <a href="#disqus_thread">Comments</a>
       {% endif %}
 
+      {% if category != '0' %}
+      <span class="categories">
+	{{ page.categories | category_links }}
+      </span>
+      {% endif %}
+
     </p>
     {% endunless %}
 
@@ -56,7 +62,7 @@ layout: default
 
     </p>
 
-    {% unless page.sharing == false %}
+    {% unless site.sharing == false or page.sharing == false%}
     <div class="sharing">
 
       {% if site.twitter_tweet_button %}
@@ -82,7 +88,7 @@ layout: default
 
     {% if site.disqus_short_name and page.comments == true %}
     <section>
-      <h3>Comments</h3>
+      <h3 id="comments">Comments</h3>
       <div id="disqus_thread" aria-live="polite">
 	<noscript>
 	  Javascript を有効にしないとコメントを見ることができません。
