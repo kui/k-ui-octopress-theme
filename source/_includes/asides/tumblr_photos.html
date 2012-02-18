@@ -1,0 +1,136 @@
+{% comment %} -*- coding:utf-8 -*- {% endcomment %}
+
+{% assign enable_tumblr_photo = true %}
+{% assign tumblr_photo_num = 12 %}
+
+{% if enable_tumblr_photo %}
+<section>
+  <h2>
+    スクラップ帳
+    &mdash;
+    <a href="http://{{site.tumblr_user}}.tumblr.com">tumblr</a>
+  </h2>
+  <p id="tumblr_photos">
+    <span class="loading">読込中 ...</span>
+  </p>
+  <script type="text/javascript">
+
+function renderTubmlrPhotos(photos){
+
+  var COLMUN_NUM = 3;
+  var targetElementId = "tumblr_photos";
+  var colmunIdPrefix = "tumblr_photos_colmun";
+  var colmunClass = "tumblr_photo_colmun";
+  var predicateHeights = {};
+  var imgWidth = 200;
+
+  function write(str){
+    var target = $('#'+targetElementId);
+    if(!target){
+      return;
+    }else{
+      target = target[0];
+    }
+    target.innerHTML = str;
+  }
+
+  function createColumn(){
+    var html = '';
+    var style = 'float:left;width:233px'; // 700px / 3
+    for(var i=0; i < COLMUN_NUM; i++){
+      var id = colmunIdPrefix+i;
+      html += '<div id="'+id+'" class="'+colmunClass+'" style="'+style+'">'
+              +'<div style="clear:both;"></div>'
+              +'</div>';
+    }
+    html += '<div style="clear:both;"></div>';
+    write(html);
+  }
+
+  var clearDiv = $('<div style="clear:both;"></div>');
+  function getLowestColmun(){
+    var minHeight = 10000;
+    var lowestColmun;
+    //console.log('--')
+    for(var i=0; i < COLMUN_NUM; i++){
+      var colmun = $('#'+colmunIdPrefix+i);
+      //console.log('#'+colmunIdPrefix+i,colmun, colmun.height());
+      var height = predicateHeights[colmun.attr('id')];
+      if(!height){ height = 0; }
+      // console.log(height);
+      if(colmun && height < minHeight){
+        minHeight = height;
+        lowestColmun = colmun;
+      }
+    }
+    return lowestColmun;
+  }
+
+  function rendPhotos(){
+    var astyle = 'display:block;padding:5px;text-decoration:none;margin:5px;float:left';
+    var ps = photos.response.posts;
+    for(var i=0; ps.length > i; i++){
+      if(!(ps[i].photos &&
+           ps[i].photos[0] &&
+           ps[i].photos[0].alt_sizes)){
+        continue;
+      }
+      //console.log(ps[i]);
+      var minAltSize =
+        getMinWidthAltSizePhotoWiderThan(ps[i].photos[0].alt_sizes, imgWidth);
+      if(!minAltSize){continue;}
+
+      var imgUrl = minAltSize.url;
+      var postUrl = ps[i].post_url;
+      var colmun = getLowestColmun();
+      var date = new Date(ps[i].date);
+
+      if(!predicateHeights[colmun.attr('id')]){
+        predicateHeights[colmun.attr('id')] = 0;
+      }
+      predicateHeights[colmun.attr('id')] = 
+        predicateHeights[colmun.attr('id')] +
+        (minAltSize.height * minAltSize.width / imgWidth);
+      // console.log(colmun.attr('id'), predicateHeights[colmun.attr('id')], (minAltSize.height * minAltSize.width / imgWidth));
+
+      $('<a title="daftbeats\'s tumblr - '+date.toLocaleString()+'" style="'+astyle+'" href="'+postUrl+'"><img src="'+imgUrl+'" width="'+imgWidth+'" /></div>').insertBefore(colmun.children().last());
+    }
+  }
+
+  function getMinWidthAltSizePhotoWiderThan(alt_sizes, threashold){
+    if(!alt_sizes) {return null;}
+    var minWidth = 10000;
+    var minAltSize;
+    for(var i=0; i < alt_sizes.length; i++){
+      if (alt_sizes[i] &&
+          alt_sizes[i].width > threashold &&
+          alt_sizes[i].width < minWidth){
+        minWidth = alt_sizes[i].width;
+        minAltSize = alt_sizes[i];
+      }
+    }
+    if(!minAltSize){
+      return alt_sizes[0];
+    }
+    return minAltSize;
+  }
+
+  if(!(photos && photos.meta && photos.response && photos.response.posts &&
+       photos.response.posts)){
+    write('unexpected response');
+    console.log(photos);
+    return;
+  }else if(photos.meta.status != 200){
+    write(photos.meta.status+': '+photos.meta.msg);
+    return;
+  }
+
+  createColumn();
+
+  rendPhotos();
+}
+
+  </script>
+  <script src="http://api.tumblr.com/v2/blog/{{site.tumblr_user}}.tumblr.com/posts/photo?api_key=U6PPqZTbPo5fe2urVC7nggWSnQKixgs92DVoTHXUnbuA3L6qpx&limit={{tumblr_photo_num}}&jsonp=renderTubmlrPhotos"  type="text/javascript"></script>
+</section>
+{% endif %}

@@ -3,61 +3,117 @@
 #comments { display: none; }
 body{
   font-family: Georgia, Times, "Times New Roman", serif;
-  font-size: 1.2em;
+  font-size: 1.0em;
   color: #333;
   margin: 0px;
+  padding: 0px;
 }
 
-h1, h2, h3, h4, h5, h6{
+h2, h3, h4, h5, h6{
   font-family: "Hiragino Kaku Gothic Pro W3", "ヒラギノ角ゴ Pro W3", Meiryo, "メイリオ", "MS P Gothic", "ＭＳ Ｐゴシック", sans-serif;
 }
 
 .site_metas {
-    background-color:#333; color:#fff;
-    a{ color: #fff; }
+  background-color:#fff;
+  color:#333;
+  a{ color: #333; }
+}
+header[role="banner"]{
+  @extend .site_metas;
+  a{
+    text-decoration: none;
+    &:hover{
+      text-decoration: underline;
+      background-color: yellow;
+    }
+  }
+  hgroup{
+    h1 {
+      margin: 0px;
+      padding: 0px;
+      font-size: 2.5em;
+      font-weight: 100;
+      float: left;
+    }
+    h2{ display: none; }
+    margin: 0px;
+    padding: 0px;
+  }
+  &:after {
+    content: "";
+    clear: both;
+    display: block;
+    visibility: hidden;
+  }
+  margin: 30px 50px 50px;
+  padding: 0px;
 }
 
-header[role="banner"]{
-    @extend .site_metas;
-    hgroup{
-        h1 {
-            font-size: 100%;
-            margin: 0px;
-            padding: 0px;
-            font-weight: 100;
-            a{
-                text-decoration: none;
-                display: block;
-                padding: .3em 1em;
-            }
-            a:hover{
-                text-decoration: underline;
-                background-color:#000;
-            }
-        }
-        h2{ display: none; }
+#social-links {
+  float: right;
+  > ul {
+    padding: 0px;
+    margin: 0px;
+    list-style-type: none;
+    > li {
+      display: block;
+      float: left;
+      margin: 0px 10px;
     }
+  }
+}
+@mixin social-links-base($img){
+  @include mask-image('socialis/glyph/'+$img+'.png');
+  background-color: #999;
+  display: block;
+  text-indent: -999999em;
+  position: relative;
+  top: 0px;
+  left: 0px;
+  padding: 5px;
+}
+.maskImage{
+  @each $name in github, twitter, tumblr, feed {
+    #social-links-#{$name} {
+      > a {
+	@include social-links-base(#{$name});
+	&:hover {
+	  @if $name == twitter { background-color: #39c; }
+	  @else if $name == tumblr { background-color: #357; }
+	  @else if $name == feed { background-color:#e93; }
+	  @else { background-color: #ccc; }
+	}
+      }
+      margin: 0px 5px;
+    }
+  }
+  #social-links-feed > a:hover{	 }
 }
 
 #content{
-    margin: 8px;
+    margin: 8px auto;
+    width: 800px;
     a{
-        color: #33c;
+	color: #33c;
     }
     a:visited{
-        color: #939;
+	color: #939;
     }
     a:hover{
-        background-color: yellow;
+	background-color: yellow;
     }
     dl{
-        margin: 1em; 
+	margin: 1em; 
     }
     dt{
-        margin-top: .6em;
-        font-style: italic;
+	margin-top: .6em;
+	font-style: italic;
     }
 }
+.entry > header{
+  margin: 50px 0px;
+}
+
 
 p.meta{
     text-align: right;
@@ -70,8 +126,13 @@ footer[role="contentinfo"]{
     padding: 8px;
     font-size: 80%;
     p {
-        margin: 0px;
+	margin: 0px;
     }
+}
+
+/* archive page */
+#blog-archives	ul  li{
+    list-style-type: none;
 }
 
 /* disqus */

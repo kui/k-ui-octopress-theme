@@ -22,10 +22,12 @@
       rel="alternate"
       title="{{site.title}}"
       type="application/atom+xml">
-
 {% if page.is_top %}
 <style type="text/css">
-  header[role="banner"] hgroup h1 { font-size: 180% }
+  header[role="banner"] hgroup h1 {
+    /* font-size: 180% */
+    color: #999;
+  }
 </style>
 {% endif %}
 

@@ -2,6 +2,8 @@ var tumblrLoader;
 
 (function(){
 
+    var API_KEY = "";
+
     tumblrLoader = function(userId, eleId){
         if(!eleId.match(/^#/)){
             eleId = '#' + eleId;

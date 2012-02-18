@@ -79,7 +79,11 @@ function getTwitterFeed(user, count, replies) {
   $.ajax({
       url: "http://api.twitter.com/1/statuses/user_timeline/" + user + ".json?trim_user=true&count=" + (count + 20) + "&include_entities=1&exclude_replies=" + (replies ? "0" : "1") + "&callback=?"
     , type: 'jsonp'
-    , error: function (err) { $('#tweets li.loading').addClass('error').text("読み込み失敗"); }
+    , error: function (err) {
+        console.log($('#tweets li.loading'));
+        console.log($('#tweets li.loading').addClass('error'));
+        $('#tweets li.loading').addClass('error').text("読み込み失敗");
+    }
     , success: function(data) { showTwitterFeed(data.slice(0, count), user); }
   })
 }
