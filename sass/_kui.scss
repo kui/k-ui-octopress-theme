@@ -2,7 +2,7 @@
 
 #comments { display: none; }
 body{
-  font-family: Georgia, Times, "Times New Roman", serif;
+  font-family: Georgia, Times, "Times New Roman", serif, "IPA明朝";
   font-size: 1.0em;
   color: #333;
   margin: 0px;
@@ -76,38 +76,38 @@ header[role="banner"]{
   @each $name in github, twitter, tumblr, feed {
     #social-links-#{$name} {
       > a {
-	@include social-links-base(#{$name});
-	&:hover {
-	  @if $name == twitter { background-color: #39c; }
-	  @else if $name == tumblr { background-color: #357; }
-	  @else if $name == feed { background-color:#e93; }
-	  @else { background-color: #ccc; }
-	}
+        @include social-links-base(#{$name});
+        &:hover {
+          @if $name == twitter { background-color: #39c; }
+          @else if $name == tumblr { background-color: #357; }
+          @else if $name == feed { background-color:#e93; }
+          @else { background-color: #ccc; }
+        }
       }
       margin: 0px 5px;
     }
   }
-  #social-links-feed > a:hover{	 }
+  #social-links-feed > a:hover{ }
 }
 
 #content{
     margin: 8px auto;
     width: 800px;
     a{
-	color: #33c;
+        color: #33c;
     }
     a:visited{
-	color: #939;
+        color: #939;
     }
     a:hover{
-	background-color: yellow;
+        background-color: yellow;
     }
     dl{
-	margin: 1em; 
+        margin: 1em;
     }
     dt{
-	margin-top: .6em;
-	font-style: italic;
+        margin-top: .6em;
+        font-style: italic;
     }
 }
 .entry > header{
@@ -126,12 +126,12 @@ footer[role="contentinfo"]{
     padding: 8px;
     font-size: 80%;
     p {
-	margin: 0px;
+        margin: 0px;
     }
 }
 
 /* archive page */
-#blog-archives	ul  li{
+#blog-archives  ul  li{
     list-style-type: none;
 }
 

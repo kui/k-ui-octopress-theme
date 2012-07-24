@@ -2,7 +2,7 @@
 {% if site.github_user %}
 <section>
   <h2>
-    Git リポジトリ 
+    Git リポジトリ
     &mdash;
     <a href="https://github.com/{{site.github_user}}">GitHub</a>
   </h2>
@@ -26,6 +26,9 @@
             user: '{{site.github_user}}',
             count: {{site.github_repo_count}},
             skip_forks: {{site.github_skip_forks}},
+            type: '{{site.github_type}}',
+            sort: '{{site.github_sort}}',
+            direction: '{{site.github_direction}}',
             target: '#gh_repos'
         });
     });
