@@ -1,3 +1,5 @@
+/* -*- mode:css coding:utf-8 -*- */
+
 @mixin mask-image($img, $repeat: no-repeat){
   @include experimental(mask-image, image-url($img), -webkit, -moz, -o, -ms);
   @include experimental(mask-repeat, $repeat, -webkit, -moz, -o, -ms);

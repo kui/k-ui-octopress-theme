@@ -1,26 +1,30 @@
 /* -*- mode:css coding:utf-8 -*- */
 
+$max-width: 900px;
+$base-font-color: #444;
+
 #comments { display: none; }
-body{
-  font-family: Georgia, Times, "Times New Roman", serif, "IPA明朝";
+body {
+  font-family: "Hiragino Mincho ProN", Georgia, Times, "Times New Roman", serif, "IPA明朝";
   font-size: 1.0em;
-  color: #333;
+  color: #{$base-font-color};
   margin: 0px;
   padding: 0px;
 }
 
-h2, h3, h4, h5, h6{
+h2, h3, h4, h5, h6 {
   font-family: "Hiragino Kaku Gothic Pro W3", "ヒラギノ角ゴ Pro W3", Meiryo, "メイリオ", "MS P Gothic", "ＭＳ Ｐゴシック", sans-serif;
 }
 
 .site_metas {
   background-color:#fff;
-  color:#333;
-  a{ color: #333; }
+  color: #{$base-font-color};
+  a { color: #{$base-font-color}; }
 }
-header[role="banner"]{
+
+header[role="banner"] {
   @extend .site_metas;
-  a{
+  a {
     text-decoration: none;
     &:hover{
       text-decoration: underline;
@@ -33,46 +37,54 @@ header[role="banner"]{
       padding: 0px;
       font-size: 2.5em;
       font-weight: 100;
-      float: left;
     }
-    h2{ display: none; }
+    h2 { display: none; }
     margin: 0px;
     padding: 0px;
   }
-  &:after {
-    content: "";
-    clear: both;
-    display: block;
-    visibility: hidden;
-  }
+
   margin: 30px 50px 50px;
+  @media screen and (max-width: 600px) {
+    margin: auto;
+    text-align: center;
+  }
   padding: 0px;
+  position: relative;
 }
 
+/* social-links */
 #social-links {
-  float: right;
+  right: 0px;
+  bottom: 0px;
+  position: absolute;
+  @media screen and (max-width: 600px) {
+    position: static;
+  }
   > ul {
     padding: 0px;
     margin: 0px;
     list-style-type: none;
     > li {
-      display: block;
-      float: left;
-      margin: 0px 10px;
+      display: inline-block;
+      margin: 0px 6px;
+      overflow: hidden;
     }
   }
 }
 @mixin social-links-base($img){
   @include mask-image('socialis/glyph/'+$img+'.png');
-  background-color: #999;
-  display: block;
-  text-indent: -999999em;
-  position: relative;
-  top: 0px;
-  left: 0px;
-  padding: 5px;
 }
 .maskImage{
+  #social-links > ul > li > a {
+    background-color: #999;
+    display: block;
+    text-indent: -999999em;
+    position: relative;
+    top: 0px;
+    left: 0px;
+    padding: 0px;
+  }
+
   @each $name in github, twitter, tumblr, feed {
     #social-links-#{$name} {
       > a {
@@ -84,31 +96,30 @@ header[role="banner"]{
           @else { background-color: #ccc; }
         }
       }
-      margin: 0px 5px;
     }
   }
-  #social-links-feed > a:hover{ }
 }
+/* /social-links */
 
 #content{
-    margin: 8px auto;
-    width: 800px;
-    a{
-        color: #33c;
-    }
-    a:visited{
-        color: #939;
-    }
-    a:hover{
-        background-color: yellow;
-    }
-    dl{
-        margin: 1em;
-    }
-    dt{
-        margin-top: .6em;
-        font-style: italic;
-    }
+  margin: 8px auto;
+  max-width: #{$max-width};
+  a{
+    color: #33c;
+  }
+  a:visited{
+    color: #939;
+  }
+  a:hover{
+    background-color: yellow;
+  }
+  dl{
+    margin: 1em;
+  }
+  dt{
+    margin-top: .6em;
+    font-style: italic;
+  }
 }
 .entry > header{
   margin: 50px 0px;
@@ -116,23 +127,23 @@ header[role="banner"]{
 
 
 p.meta{
-    text-align: right;
+  text-align: right;
 }
 
 footer[role="contentinfo"]{
-    @extend .site_metas;
-    text-align: center;
+  @extend .site_metas;
+  text-align: center;
+  margin: 0px;
+  padding: 8px;
+  font-size: 80%;
+  p {
     margin: 0px;
-    padding: 8px;
-    font-size: 80%;
-    p {
-        margin: 0px;
-    }
+  }
 }
 
 /* archive page */
 #blog-archives  ul  li{
-    list-style-type: none;
+  list-style-type: none;
 }
 
 /* disqus */
