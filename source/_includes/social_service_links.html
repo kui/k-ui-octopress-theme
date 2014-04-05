@@ -1,17 +1,23 @@
 {% if site.social_service_links %}
 <div id="social-links">
   <ul>
+    {% if site.github_user %}
     <li id="social-links-github">
-      <a title="GitHub" href="https://github.com/kui">github</a>
+      <a title="GitHub" href="https://github.com/{{site.github_user}}">github</a>
     </li>
+    {% endif %}
+    {% if site.twitter_user %}
     <li id="social-links-twitter">
-      <a title="twitter" href="http://twitter.com/k_ui">twitter</a>
+      <a title="twitter" href="http://twitter.com/{{site.twitter_user}}">twitter</a>
     </li>
+    {% endif %}
+    {% if site.tumblr_user %}
     <li id="social-links-tumblr">
-      <a title="tumblr" href="http://daftbeats.tumblr.com/">tumblr</a>
+      <a title="tumblr" href="http://{{site.tumblr_user}}.tumblr.com/">tumblr</a>
     </li>
+    {% endif %}
     <li id="social-links-feed">
-      <a title="feed" href="http://k-ui.jp/atom.xml">feed</a>
+      <a title="feed" href="{{site.url}}/atom.xml">feed</a>
     </li>
   </ul>
 </div>
